@@ -1,4 +1,4 @@
-import { BN, bnToBn, u8aToHex } from '@polkadot/util'
+import { BN, bnToBn, hexToU8a, isHex, u8aToHex } from '@polkadot/util'
 import type { WeightV2 } from '@polkadot/types/interfaces'
 import { ApiPromise } from '@polkadot/api'
 import { decodeAddress, encodeAddress } from '@polkadot/util-crypto'
@@ -42,4 +42,13 @@ export const getAstarSs58Address = (address: string) => {
 		ASTAR_SS58_FORMAT
 	)
 	return astarSs58Address
+}
+
+export const isValidAddressPolkadotAddress = (address: string) => {
+	try {
+		encodeAddress(isHex(address) ? hexToU8a(address) : decodeAddress(address))
+		return true
+	} catch (error) {
+		return false
+	}
 }

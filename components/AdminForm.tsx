@@ -1,6 +1,7 @@
-import React from 'react'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Select, Space } from 'antd'
+import { isValidAddressPolkadotAddress } from '../utils'
+import { useState } from 'react'
 
 const formItemLayout = {
 	labelCol: {
@@ -24,16 +25,35 @@ const { Option } = Select
 
 interface AdminFormProps {
 	disabled: boolean
+	onSubmit: (values: any) => Promise<void>
 }
 
-const AdminForm = ({ disabled }: AdminFormProps) => {
-	const onFinish = (values: any) => {
+const AdminForm = ({ disabled, onSubmit }: AdminFormProps) => {
+	// TODO add form interface
+	const [form] = Form.useForm()
+	const [isSubmitting, setIsSubmitting] = useState(false)
+
+	const onFinish = async (values: any) => {
 		console.log('Received values of form:', values)
+
+		setIsSubmitting(true)
+		try {
+			await onSubmit({
+				whitelistType: values.whitelist.toLowerCase(),
+				address: values.accounts,
+			})
+		} catch (error) {
+			console.log('error', error)
+		}
+		setIsSubmitting(false)
+
+		form.resetFields()
 	}
 
 	return (
 		<Form
 			{...formItemLayoutWithOutLabel}
+			form={form}
 			name="dynamic_form_item"
 			onFinish={onFinish}
 			className="md:w-[60%]"
@@ -92,6 +112,16 @@ const AdminForm = ({ disabled }: AdminFormProps) => {
 												whitespace: true,
 												message: 'Please input account id',
 											},
+											{
+												validator: (_, value) =>
+													isValidAddressPolkadotAddress(value)
+														? Promise.resolve()
+														: Promise.reject(
+																new Error(
+																	'Please input a valid polkadot address'
+																)
+														  ),
+											},
 										]}
 									>
 										<Input placeholder="Account Id" />
@@ -134,7 +164,12 @@ const AdminForm = ({ disabled }: AdminFormProps) => {
 				)}
 			</Form.List>
 			<Form.Item>
-				<Button type="primary" htmlType="submit" className="bg-[#1677ff]">
+				<Button
+					type="primary"
+					htmlType="submit"
+					loading={isSubmitting}
+					className="bg-[#1677ff]"
+				>
 					Submit
 				</Button>
 			</Form.Item>
