@@ -9,6 +9,7 @@ import ContractForm from '../components/ContractForm'
 import { ContractPromise } from '@polkadot/api-contract'
 import abi_refundable from '../config/abi-refundable'
 import { getAstarSs58Address, getMaxGasLimit } from '../utils'
+import StakerInfoForm from '../components/StakerInfoForm'
 
 type InjectedAccount = Awaited<ReturnType<typeof web3Accounts>>
 
@@ -23,7 +24,11 @@ export default function Home() {
 
 	useEffect(() => {
 		const initialize = async () => {
-			const provider = new WsProvider('wss://rpc.shibuya.astar.network')
+			const provider = new WsProvider(
+				process.env.APP_ENV === 'development'
+					? 'wss://rpc.shibuya.astar.network'
+					: 'wss://rpc.astar.network/'
+			)
 			const api = await ApiPromise.create({ provider })
 
 			setApi(api)
@@ -162,6 +167,7 @@ export default function Home() {
 					<>
 						<ContractForm checkContract={checkIfCurrentUserIsContractOwner} />
 						<AdminForm disabled={!contractOwner} onSubmit={addWhitelist} />
+						<StakerInfoForm api={api} allAccount={allAccount} />
 					</>
 				) : (
 					<Button onClick={connect}>Connect</Button>
