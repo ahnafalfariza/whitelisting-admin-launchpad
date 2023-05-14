@@ -111,18 +111,10 @@ const StakerInfoForm = ({
 
 			if (parasEraStake.isSome) {
 				const unwrapParasEraStake = parasEraStake.unwrap()
+
 				const formattedAccountStakingAmount = accountStakingAmount
 					? formatEther(accountStakingAmount.accountStakingAmount as string)
 					: '0'
-				console.log({
-					contractAddress: contract_address,
-					numberOfStakers: unwrapParasEraStake.numberOfStakers.toNumber(),
-					stakeTotal: parseFloat(
-						formatEther(unwrapParasEraStake.total.toHuman().replaceAll(',', ''))
-					).toLocaleString(),
-					walletAddress: wallet_address,
-					walletAccountAmount: formattedAccountStakingAmount,
-				})
 
 				init
 					? setInitStaker({
@@ -163,9 +155,10 @@ const StakerInfoForm = ({
 
 	const onSearchStaker = (input: string) => {
 		if (!input) setStakers(backupStakers)
-		setStakers((prev) =>
-			prev.filter((data) => data.wallet_address?.includes(input))
-		)
+		else
+			setStakers((prev) =>
+				prev.filter((data) => data.wallet_address?.includes(input))
+			)
 	}
 
 	useEffect(() => {
